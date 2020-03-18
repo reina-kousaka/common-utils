@@ -1,5 +1,6 @@
 package com.rk.utils.office;
 
+import com.rk.utils.date.DateUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -137,6 +138,56 @@ public class ExcelUtil {
                 for (int k = 0; k < row.getLastCellNum(); k++) {
                     cell = row.getCell(k);
                     data.add(getValue(cell));
+                }
+                datas.add(data);
+            }
+        }
+        return datas;
+    }
+
+    public static List<List<String>> parseExcelString(InputStream is, boolean xlsx) {
+        Workbook wb = null;
+        try {
+            if (xlsx) {
+                wb = new XSSFWorkbook(is);
+            } else {
+                wb = new HSSFWorkbook(is);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Sheet sheet;
+        Row row;
+        Cell cell;
+        List<List<String>> datas = new ArrayList<>();
+        List<String> data;
+        int pRowNum = 0;
+        Object val;
+        String value;
+        for (int i = 0; i < wb.getNumberOfSheets(); i++) {
+            sheet = wb.getSheetAt(i);
+            pRowNum = sheet.getPhysicalNumberOfRows();
+            for (int j = 0; i < sheet.getLastRowNum(); j++) {
+                if (pRowNum <= 0) {
+                    break;
+                }
+                row = sheet.getRow(j);
+                if (row == null) {
+                    continue;
+                }
+                pRowNum--;
+
+                data = new ArrayList<>();
+                for (int k = 0; k < row.getLastCellNum(); k++) {
+                    cell = row.getCell(k);
+                    val = getValue(cell);
+                    if (val instanceof Date) {
+                        value = DateUtils.getDateString((Date) val, "yyyy-MM-dd HH:mm:ss");
+                    } else {
+                        value = String.valueOf(val);
+                    }
+                    data.add(value);
                 }
                 datas.add(data);
             }
@@ -338,11 +389,11 @@ public class ExcelUtil {
         return fileDatas;
     }
 
-    public static List<List<Object>> loadCsvTable(InputStream inputStream, String charset) throws IOException {
-        List<List<Object>> fileDatas = new ArrayList<>();
+    public static List<List<String>> loadCsvTable(InputStream inputStream, String charset) throws IOException {
+        List<List<String>> fileDatas = new ArrayList<>();
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, charset));
         String line;
-        List<Object> lineList;
+        List<String> lineList;
         while ((line = bufferedReader.readLine()) != null) {
             lineList = new ArrayList<>();
             for (String s : line.split(",")) {
