@@ -8,13 +8,6 @@
     <artifactId>common-utils</artifactId>
     <version>1.0</version>
 
-    <repositories>
-        <repository>
-            <id>aliyun</id>
-            <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.ant</groupId>
